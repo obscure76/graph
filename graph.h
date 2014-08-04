@@ -3,6 +3,8 @@
 #include<algorithm>
 #include<list>
 #include<set>
+#include<map>
+#include<queue>
 #define MAXSIZE 100
 using namespace std;
 
@@ -10,15 +12,14 @@ using namespace std;
 class Vertex
 {
     private:
-        int val;
-        list<Vertex> adjList;
+		pair<int, list<Vertex> > V;
     public:
         Vertex(){};
         Vertex(int);
-        addAdjVertex(int);
+        bool addAdjVertex(int);
         friend bool operator==(Vertex const &, Vertex const &);
-        friend bool operator<(Edge const &,  Edge const &);
-        friend bool operator>(Edge const &,  Edge const &);
+        friend bool operator<(Vertex const &,  Vertex const &);
+        friend bool operator>(Vertex const &,  Vertex const &);
 };
 
 class Edge
@@ -42,15 +43,20 @@ class Edge
 class Graph
 {
     private:
-        set<Vertex> vertices;
+        map<int, list<int> > vertices;
         list<Edge> edges;
-        int adj[MAXSIZE][MAXSIZE];
+		set<int> visited;
     public:
         Graph();
         bool addVertex(int);
-        bool addEdge(Edge);
+        bool addEdge(int, int, int);
         bool deleteVertex(int);
         void print();
+		void bfs();
+		void dfstraversal();
+		void dfs(int, list<int>);
+		void pathSum(int);
+		void findpath(int, int, char *, int, list<int> adj);
 };
 
 

@@ -2,26 +2,25 @@
 
 Vertex::Vertex(int v)
 {
-    val = v;
 }
-Vertex::addAdjVertex(int v)
+bool Vertex::addAdjVertex(int v) 
 {
-
 }
 
 bool operator==(Vertex const &v1, Vertex const &v2)
 {
-    return(v1.val==v2.val);
+    return true;
 }
 bool operator<(Vertex const &v1, Vertex const &v2)
 {
-    return(v1.val<v2.val);
+    return true;
 }
 
 bool operator>(Vertex const &v1, Vertex const &v2)
 {
-    return(v1.val>v2.val);
+    return true;
 }
+
 Edge::Edge(int a, int s1, int s2)
 {
     weight = a;
@@ -29,9 +28,9 @@ Edge::Edge(int a, int s1, int s2)
     dst = s2;
 }
 
-Edge::getWeight(){return weight;}
-Edge::getSource(){return src;}
-Edge::getDest(){return dst;}
+int Edge::getWeight(){return weight;}
+int Edge::getSource(){return src;}
+int Edge::getDest(){return dst;}
 
 bool operator==( Edge const &e1, Edge const & e2)
 {
@@ -41,28 +40,124 @@ bool operator==( Edge const &e1, Edge const & e2)
 }
 
 
-Graph::Graph()
-{
-    memset(adj, 0, sizeof(int)*MAXSIZE*MAXSIZE);
-}
+Graph::Graph(){}
 
 bool Graph::addVertex(int v)
 {
-    vertices.insert(Vertex(v));    
+	list<int> adjList;
+    vertices.insert(pair<int, list<int> >(v, adjList));    
 }
-bool Graph::addEdge(Edge e)
+bool Graph::addEdge(int wt, int s, int d)
 {
-    edges.insert(e);
-    set<Vertex>::iterator src = vertices.find(e.getSource());
-    src->addAdjVertex(vertices.find(e.getDest));
+    edges.push_back(Edge(wt, s, d));
+	map<int, list<int> >::iterator sit = vertices.find(s);
+	if(sit!=vertices.end())
+		sit->second.push_back(d);
+	else
+	{
+		list<int> adjList;
+		adjList.push_back(d);
+		vertices.insert(pair<int, list<int> >(s, adjList));
+	}
 }
 bool Graph::deleteVertex(int v)
 {
-    vertices.erase(v);
 }
 void Graph::print()
 {
+	map<int, list<int> >::iterator it;
+	for(it = vertices.begin();it!=vertices.end();it++)
+	{	
+		cout<<"Node "<<it->first<<'-';
+		for(list<int>::iterator lit = it->second.begin();lit!=it->second.end();lit++)
+			cout<<*lit<<',';
+		cout<<endl;
+	}
 }
+void Graph::bfs()
+{
+	queue<int> q;
+	visited.clear();
+	q.push(vertices.begin()->first);
+	visited.insert(vertices.begin()->first);
+	cout<<"\n BFS Traversal :";
+	while(q.size() > 0)
+	{
+		int v = q.front();
+		q.pop();
+		list<int> adjList = vertices.find(v)->second;
+		list<int>::iterator it;
+		set<int>::iterator sit;
+		for(it = adjList.begin();it!=adjList.end();it++)
+		{
+			sit = visited.find(*it);
+			if(sit!=visited.end())
+				continue;
+			visited.insert(*it);
+			q.push(*it);
+		}
+		cout<<v<<" ";
+	}
+}
+
+void Graph::dfstraversal()
+{
+	visited.clear();
+	cout<<"\nDFS Traversal :";
+	map<int, list<int> >::iterator it;
+	for(it = vertices.begin();it!=vertices.end();it++)
+	{
+		if(visited.find(it->first) != visited.end())
+			continue;
+		visited.insert(it->first);
+		dfs(it->first, it->second);
+	}
+}
+
+void Graph::dfs(int v, list<int> adj)
+{
+	list<int>::iterator lit;
+	for(lit = adj.begin();lit!=adj.end();lit++)
+	{
+		if(visited.find(*lit) != visited.end())
+			continue;
+		visited.insert(*lit);
+		dfs(*lit, vertices.find(*lit)->second);
+	}
+	cout<<v<<' ';
+}
+
+void Graph::pathSum(int sum)
+{
+	char *str;
+	str = malloc(100);
+	memset(str, 0, 100);
+	visited.clear();
+	map<int, list<int> >::iterator it;
+	it = vertices.begin();
+	visited.insert(it->first);
+	str[0] = '0' + it->first;
+	findpath(sum, it->first, str, 1, it->second);
+}
+
+void Graph::findpath(int sum, int curr, char *str, int in, list<int> adj)
+{
+	if(sum==curr)
+	{
+		str[i] = '\0';
+		cout<<str;
+	} else {
+		list<int>::iterator lit;
+		for(lit = adj.begin();lit!=adj.end();lit++)
+		{
+			if(curr+*lit > sum)
+				continue;
+			str[in] = '0'+*lit;
+			findpath(sum, curr+*lit, str, in+1, vertices.find(*lit)->second);
+		}
+	}
+}
+
 int main()
 {
     Graph g;
@@ -71,11 +166,13 @@ int main()
     g.addVertex(3);
     g.addVertex(1);
     g.addVertex(5);
-    g.addEdge(Edge(1,1,2);
-    g.addEdge(Edge(1,1,2);
-    g.addEdge(Edge(1,2,3);
-    g.addEdge(Edge(1,2,4);
-    g.addEdge(Edge(1,4,5);
+    g.addEdge(1,1,2);
+    g.addEdge(1,1,3);
+    g.addEdge(1,2,3);
+    g.addEdge(1,2,4);
+    g.addEdge(1,4,5);
     g.print();
+	g.bfs();
+	g.dfstraversal();
     return 0;
 }
